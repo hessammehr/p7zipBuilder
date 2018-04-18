@@ -1,0 +1,40 @@
+language: julia
+os:
+  - linux
+julia:
+  - 0.6
+notifications:
+  email: false
+git:
+  depth: 99999999
+cache:
+  timeout: 1000
+  directories:
+    - downloads
+env:
+  global:
+    - BINARYBUILDER_DOWNLOADS_CACHE=downloads
+    - BINARYBUILDER_AUTOMATIC_APPLE=false
+sudo: required
+
+# Before anything else, get the latest versions of things
+before_script:
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryProvider.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryBuilder.jl"); Pkg.build()'
+
+script:
+  - julia build_tarballs.jl
+
+
+deploy:
+    provider: releases
+    api_key:
+        # Note; this api_key is only valid for hessammehr/p7zipBuilder; you need
+        # to make your own: https://docs.travis-ci.com/user/deployment/releases/
+        secure: TNkHVYjAIh1+F47pBAH2PuyXpTX0oqIGaALPZCBOC6sTBv+fIEGSi4l9PX2V/B7oP5lKkuUDNtcqAXQtVP6NV7uzDWXe5pRz69dR3YLmwY7Jj6xbTF3TZgVz8qkGITaSXiq5BYABp0OAjRMTX+I8V3R127E91a+3njGXzoJgVrOtls8wqHnfhoqBHgtgX8oyWsV5kNPIvsq+wkwRJ1Vzz1GVNo/KmrKw4V+nen0GM4ItpLdEwxg6biT9o1SF8FpqeHZ/0rsZlq+/Vt9rpPXhEjC7ARlKt7MzoMtHdSnN+ouszkNDmjTxUP0453YURUw8shHmmNWIAE6yXyU59Q4Y/O5I8AyaRT4EgGr9q/WKXjzBs/ATSvpPuv+UjATZb5dT/gxVKi4NvGI9vEGHepY7qBHpxHLjpcc/jSov07MluCTR2e1xAkMngBQ1xBcv9AvVOPQuT3EeePHOT8cmP2iycBhjMDf47391zhP4vz2X/Pm4RkzYNzXTFL4IPyz12o48UXnF0sVljxmeSwSHDbWKBY3CyUJZZA12xkWYDS+fnlIKxiAKTfX7Y5wYy6LpgIz7vjY65X3/7ENXGKPawbtfpmuibwIZbSDC+nYj3ARPFUaMQWpHnoDqSGdl4+HachZ82e/Rpcigr4p/ZYsVmHN+ISIWozCBVGli3SmyYUKEqoc=
+    file_glob: true
+    file: products/*
+    skip_cleanup: true
+    on:
+        repo: hessammehr/p7zipBuilder
+        tags: true
